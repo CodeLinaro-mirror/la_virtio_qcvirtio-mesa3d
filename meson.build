@@ -1385,7 +1385,13 @@ if cc.compiles('''#include <stdint.h>
                               (int)__atomic_add_fetch(x.v, (uint64_t)1, __ATOMIC_ACQ_REL);
                      }''',
                   name : 'GCC atomic builtins required -latomic')
-    dep_atomic = cc.find_library('atomic')
+    # Android toolchains in AOSP builds may provide atomics via compiler-rt
+    # without a standalone libatomic in the sysroot. Make this optional here.
+    if host_machine.system() == 'android'
+      dep_atomic = cc.find_library('atomic', required : false)
+    else
+      dep_atomic = cc.find_library('atomic')
+    endif
   endif
 endif
 if not cc.links('''#include <stdint.h>
