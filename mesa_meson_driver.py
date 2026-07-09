@@ -372,7 +372,11 @@ def _configure_env(aosp_root: Path, shim_lib_dir: Path, link_libdirs, crtbegin: 
     # Meson spawns compiler/linker subprocesses that do not automatically inherit
     # Soong's full implicit path wiring, so we pass library/crt hints explicitly.
     env = os.environ.copy()
-    env["PATH"] = f"{aosp_root}/prebuilts/build-tools/linux-x86/bin:{env.get('PATH', '')}"
+    env["PATH"] = (
+        f"{aosp_root}/prebuilts/build-tools/path/linux-x86:"
+        f"{aosp_root}/prebuilts/build-tools/linux-x86/bin:"
+        f"{env.get('PATH', '')}"
+    )
     # Meson+Mesa python helpers rely on these modules in AOSP tree.
     # Preserve the incoming PYTHONPATH from Soong/sbox; replacing it may hide
     # already-exported module search paths and break Mako discovery.
