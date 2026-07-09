@@ -84,14 +84,19 @@ import os
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--out', required=True,
-                        help='Output H file')
+    parser.add_argument('--out', help='Output H file')
+    parser.add_argument('--outdir',
+                        help='Legacy Android.bp compatibility: output directory')
 
     args = parser.parse_args()
+    if not args.out:
+        if args.outdir:
+            args.out = os.path.join(args.outdir, 'nir_intrinsics_indices.h')
+        else:
+            parser.error('the following arguments are required: --out')
 
     with open(args.out, 'w', encoding='utf-8') as f:
         f.write(Template(template).render(INTR_INDICES=INTR_INDICES))
 
 if __name__ == '__main__':
     main()
-
