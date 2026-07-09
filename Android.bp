@@ -281,6 +281,7 @@ cc_genrule {
     srcs: [
         ":libdrm",
         ":libz",
+        ":libzstd",
         ":mesa_srcs",
     ],
     out: [
@@ -288,9 +289,10 @@ cc_genrule {
         "libGLESv1_CM_mesa.so",
         "libGLESv2_mesa.so",
         "libgallium_dri.so",
+        "libvulkan_virtio.so",
     ],
     cmd: "python3 $(location) --arch $$CC_ARCH --gen-dir $(genDir) " +
-        "--libdrm $(location :libdrm) --libz $(location :libz)",
+        "--libdrm $(location :libdrm) --libz $(location :libz) --libzstd $(location :libzstd)",
 }
 
 cc_prebuilt_library_shared {
@@ -313,6 +315,7 @@ cc_prebuilt_library_shared {
     required: [
         "libGLESv1_CM_mesa",
         "libGLESv2_mesa",
+        "vulkan.virtio",
         "gralloc.minigbm",
     ],
 }
@@ -349,6 +352,25 @@ cc_prebuilt_library_shared {
         "libsync",
         "libdrm",
         "libz",
+        "libm",
+        "libdl",
+        "libc",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "vulkan.virtio",
+    vendor: true,
+    srcs: [":mesa_meson{libvulkan_virtio.so}"],
+    relative_install_path: "hw",
+    shared_libs: [
+        "libcutils",
+        "libhardware",
+        "liblog",
+        "libnativewindow",
+        "libsync",
+        "libdrm",
+        "libzstd",
         "libm",
         "libdl",
         "libc",

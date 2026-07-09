@@ -304,12 +304,13 @@ def _write_pkg_config_shim(
     aosp_root: Path,
     libdrm_dir: str,
     libz_dir: str,
+    libzstd_dir: str,
 ):
     """
     Provide a tiny pkg-config shim for Meson.
 
     We only emulate what this build needs: --version/--modversion/--cflags/--libs
-    for `libdrm` and `zlib`.
+    for `libdrm`, `zlib`, and `libzstd`.
     This avoids depending on an external pkg-config binary/database while still
     satisfying Meson's dependency discovery in a hermetic Soong invocation.
     """
@@ -324,7 +325,7 @@ pkg=""
 for a in "$@"; do
   case "$a" in
     -* ) ;;
-    libdrm|zlib) pkg="$a" ;;
+    libdrm|zlib|libzstd) pkg="$a" ;;
   esac
 done
 if [ -z "$pkg" ]; then
@@ -333,6 +334,8 @@ fi
 if [[ " $@ " == *" --modversion "* ]]; then
   if [ "$pkg" = "libdrm" ]; then
     echo 3.0.0
+  elif [ "$pkg" = "libzstd" ]; then
+    echo 1.5.0
   else
     echo 2.0.0
   fi
@@ -341,6 +344,8 @@ fi
 if [[ " $@ " == *" --cflags "* ]]; then
   if [ "$pkg" = "libdrm" ]; then
     echo "-I{aosp_root}/external/libdrm -I{aosp_root}/external/libdrm/include -I{aosp_root}/external/libdrm/include/drm"
+  elif [ "$pkg" = "libzstd" ]; then
+    echo "-I{aosp_root}/external/zstd/lib"
   else
     echo "-I{aosp_root}/external/zlib"
   fi
@@ -349,6 +354,8 @@ fi
 if [[ " $@ " == *" --libs "* ]]; then
   if [ "$pkg" = "libdrm" ]; then
     echo "-L{libdrm_dir} -ldrm"
+  elif [ "$pkg" = "libzstd" ]; then
+    echo "-L{libzstd_dir} -lzstd"
   else
     echo "-L{libz_dir} -lz"
   fi
@@ -426,6 +433,7 @@ def main() -> int:
     parser.add_argument("--gen-dir", required=True)
     parser.add_argument("--libdrm", required=True)
     parser.add_argument("--libz", required=True)
+    parser.add_argument("--libzstd", required=True)
     args = parser.parse_args()
 
     # 1) Resolve toolchain and platform metadata from current AOSP build tree.
@@ -458,11 +466,13 @@ def main() -> int:
 
     libdrm_path = Path(args.libdrm).resolve()
     libz_path = Path(args.libz).resolve()
+    libzstd_path = Path(args.libzstd).resolve()
     _write_pkg_config_shim(
         pkg_config,
         aosp_root,
         str(libdrm_path.parent),
         str(libz_path.parent),
+        str(libzstd_path.parent),
     )
 
     # 3) Write Meson cross/native files and patch link args for Soong stubs.
@@ -521,7 +531,7 @@ def main() -> int:
         "-Dandroid-stub=true",
         "-Dandroid-libbacktrace=disabled",
         "-Dgallium-drivers=virgl",
-        "-Dvulkan-drivers=",
+        "-Dvulkan-drivers=virtio",
         # Keep EGL/GLES enabled to provide Android GL stack entry points.
         "-Degl=enabled",
         "-Dgles1=enabled",
@@ -530,7 +540,7 @@ def main() -> int:
         "-Dgles-lib-suffix=_mesa",
         "-Dopengl=false",
         "-Dvideo-codecs=",
-        "-Dzstd=disabled",
+        "-Dzstd=enabled",
         "-Dvalgrind=disabled",
     ]
     subprocess.run(setup_cmd, check=True, env=env)
@@ -546,6 +556,7 @@ def main() -> int:
         "libGLESv1_CM_mesa.so",
         "libGLESv2_mesa.so",
         "libgallium_dri.so",
+        "libvulkan_virtio.so",
     ]:
         shutil.copy2(out_lib / so, gen_dir / so)
 
