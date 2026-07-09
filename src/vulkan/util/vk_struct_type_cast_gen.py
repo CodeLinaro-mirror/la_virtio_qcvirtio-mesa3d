@@ -91,12 +91,17 @@ def main():
                         help='Vulkan API XML files',
                         action='append',
                         dest='xml_files')
-    parser.add_argument('--out',
-                        help='Output H file',
-                        required=True)
+    parser.add_argument('--out', help='Output H file')
+    parser.add_argument('--outdir',
+                        help='Legacy Android.bp compatibility: output directory')
     parser.add_argument('--beta', required=True, help='Enable beta extensions.')
 
     args = parser.parse_args()
+    if not args.out:
+        if args.outdir:
+            args.out = os.path.join(args.outdir, 'vk_struct_type_cast.h')
+        else:
+            parser.error('the following arguments are required: --out')
 
     structs = []
 
