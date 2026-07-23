@@ -30,6 +30,7 @@ python_binary_host {
 
 genrule {
     name: "vk_cmd_queue_header",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_cmd_queue.h"],
     tools: ["vk_cmd_queue_gen"],
@@ -41,6 +42,7 @@ genrule {
 
 genrule {
     name: "vk_cmd_queue_impl",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_cmd_queue.c"],
     tools: ["vk_cmd_queue_gen"],
@@ -52,6 +54,7 @@ genrule {
 
 genrule {
     name: "vk_common_entrypoints_header",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_common_entrypoints.h"],
     tools: ["vk_entrypoints_gen"],
@@ -63,6 +66,7 @@ genrule {
 
 genrule {
     name: "vk_common_entrypoints_impl",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_common_entrypoints.c"],
     tools: ["vk_entrypoints_gen"],
@@ -75,6 +79,7 @@ genrule {
 
 genrule {
     name: "vk_cmd_enqueue_entrypoints_header",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_cmd_enqueue_entrypoints.h"],
     tools: ["vk_entrypoints_gen"],
@@ -87,6 +92,7 @@ genrule {
 
 genrule {
     name: "vk_cmd_enqueue_entrypoints_impl",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_cmd_enqueue_entrypoints.c"],
     tools: ["vk_entrypoints_gen"],
@@ -99,6 +105,7 @@ genrule {
 
 genrule {
     name: "vk_dispatch_trampolines_header",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_dispatch_trampolines.h"],
     tools: ["vk_dispatch_trampolines_gen"],
@@ -110,6 +117,7 @@ genrule {
 
 genrule {
     name: "vk_dispatch_trampolines_impl",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_dispatch_trampolines.c"],
     tools: ["vk_dispatch_trampolines_gen"],
@@ -121,6 +129,7 @@ genrule {
 
 genrule {
     name: "vk_physical_device_features_header",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_physical_device_features.h"],
     tools: ["vk_physical_device_features_gen"],
@@ -132,6 +141,7 @@ genrule {
 
 genrule {
     name: "vk_physical_device_features_impl",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_physical_device_features.c"],
     tools: ["vk_physical_device_features_gen"],
@@ -143,6 +153,7 @@ genrule {
 
 genrule {
     name: "vk_physical_device_properties_header",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_physical_device_properties.h"],
     tools: ["vk_physical_device_properties_gen"],
@@ -154,6 +165,7 @@ genrule {
 
 genrule {
     name: "vk_physical_device_properties_impl",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_physical_device_properties.c"],
     tools: ["vk_physical_device_properties_gen"],
@@ -165,6 +177,7 @@ genrule {
 
 genrule {
     name: "vk_format_info_header",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_format_info.h"],
     tools: ["vk_format_info_gen"],
@@ -176,6 +189,7 @@ genrule {
 
 genrule {
     name: "vk_format_info_impl",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_format_info.c"],
     tools: ["vk_format_info_gen"],
@@ -187,6 +201,7 @@ genrule {
 
 genrule {
     name: "vk_physical_device_spirv_caps_impl",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_physical_device_spirv_caps.c"],
     tools: ["vk_physical_device_spirv_caps_gen"],
@@ -197,6 +212,7 @@ genrule {
 
 genrule {
     name: "vk_synchronization_helpers_impl",
+    enabled: false,
     srcs: [":mesa_vulkan_xml"],
     out: ["vk_synchronization_helpers.c"],
     tools: ["vk_synchronization_helpers_gen"],
@@ -207,6 +223,7 @@ genrule {
 
 cc_library_static {
     name: "mesa_vulkan_runtime",
+    enabled: false,
     vendor: true,
     host_supported: true,
     defaults: [

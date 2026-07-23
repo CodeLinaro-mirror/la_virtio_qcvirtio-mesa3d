@@ -91,6 +91,7 @@ python_binary_host {
 
 genrule {
     name: "u_indices_gen.c",
+    enabled: false,
     srcs: [
         "indices/u_indices_gen.py",
     ],
@@ -110,6 +111,7 @@ genrule {
 
 genrule {
     name: "u_unfilled_gen.c",
+    enabled: false,
     srcs: [
         "indices/u_unfilled_gen.py",
     ],
@@ -128,6 +130,7 @@ genrule {
 
 genrule {
     name: "tr_util.ch.h",
+    enabled: false,
     srcs: [
         ":mesa_p_video_enums",
         ":mesa_p_defines",
@@ -152,6 +155,7 @@ genrule {
 
 genrule {
     name: "tr_util.ch.c",
+    enabled: false,
     srcs: [
         ":mesa_p_video_enums",
         ":mesa_p_defines",
@@ -171,6 +175,7 @@ genrule {
 
 genrule {
     name: "u_tracepoints.c",
+    enabled: false,
     srcs: [
         "util/u_tracepoints.py",
         ":mesa_u_trace.py",
@@ -191,6 +196,7 @@ genrule {
 
 genrule {
     name: "u_tracepoints.h",
+    enabled: false,
     srcs: [
         "util/u_tracepoints.py",
         ":mesa_u_trace.py",
