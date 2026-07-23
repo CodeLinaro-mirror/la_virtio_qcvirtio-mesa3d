@@ -18,14 +18,14 @@ def _find_aosp_root() -> Path:
     env_root = os.environ.get("AOSP_ROOT")
     if env_root:
         candidate = Path(env_root).resolve()
-        if (candidate / "external/mesa3d").is_dir():
+        if (candidate / "external/virtio/mesa3d").is_dir():
             return candidate
 
     cur = Path.cwd().resolve()
     # First pass: prefer directories that look like a full checkout
     # (contains build/envsetup.sh), not partial copied trees.
     for parent in [cur] + list(cur.parents):
-        if not (parent / "external/mesa3d").is_dir():
+        if not (parent / "external/virtio/mesa3d").is_dir():
             continue
         if (parent / "build/envsetup.sh").is_file():
             return parent
@@ -33,7 +33,7 @@ def _find_aosp_root() -> Path:
     # Second pass: fallback for environments where build/envsetup.sh is absent
     # but mesa source is still laid out under external/.
     for parent in [cur] + list(cur.parents):
-        if (parent / "external/mesa3d").is_dir():
+        if (parent / "external/virtio/mesa3d").is_dir():
             return parent
 
     raise RuntimeError("Cannot determine AOSP root directory.")
@@ -519,7 +519,7 @@ def main() -> int:
     env = _configure_env(aosp_root, shim_lib_dir, bionic_stub_libdirs, crtbegin, crtend)
     host_python = _pick_host_python()
     subprocess.run([host_python, "--version"], check=True, env=env)
-    mesa_src = aosp_root / "external/mesa3d"
+    mesa_src = aosp_root / "external/virtio/mesa3d"
     setup_cmd = [
         host_python,
         str(meson_py),
