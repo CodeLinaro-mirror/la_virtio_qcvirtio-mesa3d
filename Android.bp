@@ -299,7 +299,6 @@ qcvirtio_graphics_cc_genrule {
     srcs: [
         ":libdrm",
         ":libz",
-        ":libzstd",
         ":mesa_srcs",
     ],
     out: [
@@ -310,7 +309,7 @@ qcvirtio_graphics_cc_genrule {
         "libvulkan_virtio.so",
     ],
     cmd: "python3 $(location) --arch $$CC_ARCH --gen-dir $(genDir) " +
-        "--libdrm $(location :libdrm) --libz $(location :libz) --libzstd $(location :libzstd)",
+        "--libdrm $(location :libdrm) --libz $(location :libz)",
 
     soong_config_variables: {
         enabled: {
@@ -436,7 +435,6 @@ qcvirtio_graphics_cc_prebuilt_library_shared {
         "libnativewindow",
         "libsync",
         "libdrm",
-        "libzstd",
         "libm",
         "libdl",
         "libc",
