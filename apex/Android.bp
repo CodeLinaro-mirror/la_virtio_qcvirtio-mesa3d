@@ -4,20 +4,10 @@ package {
     default_applicable_licenses: ["external_mesa3d_license_apex"],
 }
 
-license {
-    name: "external_mesa3d_license_apex",
-    visibility: [":__subpackages__"],
-    license_kinds: [
-        "SPDX-license-identifier-MIT",
-    ],
-    license_text: [
-        "//external/virtio/mesa3d/licenses/MIT",
-    ],
-}
-
 cc_prebuilt_library_shared {
     name: "qcvirtio_libEGL_mesa",
     stem: "libEGL_mesa",
+    defaults: ["//external/virtio/minigbm:qcvirtio_graphics_enabled_defaults"],
     vendor: true,
     srcs: ["//external/virtio/mesa3d:mesa_meson{libEGL_mesa.so}"],
     relative_install_path: "egl",
@@ -44,6 +34,7 @@ cc_prebuilt_library_shared {
 cc_prebuilt_library_shared {
     name: "qcvirtio_libGLESv1_CM_mesa",
     stem: "libGLESv1_CM_mesa",
+    defaults: ["//external/virtio/minigbm:qcvirtio_graphics_enabled_defaults"],
     vendor: true,
     srcs: ["//external/virtio/mesa3d:mesa_meson{libGLESv1_CM_mesa.so}"],
     relative_install_path: "egl",
@@ -56,6 +47,7 @@ cc_prebuilt_library_shared {
 cc_prebuilt_library_shared {
     name: "qcvirtio_libGLESv2_mesa",
     stem: "libGLESv2_mesa",
+    defaults: ["//external/virtio/minigbm:qcvirtio_graphics_enabled_defaults"],
     vendor: true,
     srcs: ["//external/virtio/mesa3d:mesa_meson{libGLESv2_mesa.so}"],
     relative_install_path: "egl",
@@ -68,6 +60,7 @@ cc_prebuilt_library_shared {
 cc_prebuilt_library_shared {
     name: "qcvirtio_libgallium_dri",
     stem: "libgallium_dri",
+    defaults: ["//external/virtio/minigbm:qcvirtio_graphics_enabled_defaults"],
     vendor: true,
     srcs: ["//external/virtio/mesa3d:mesa_meson{libgallium_dri.so}"],
     shared_libs: [
@@ -85,6 +78,7 @@ cc_prebuilt_library_shared {
 cc_prebuilt_library_shared {
     name: "qcvirtio_vulkan_virtio",
     stem: "vulkan.virtio",
+    defaults: ["//external/virtio/minigbm:qcvirtio_graphics_enabled_defaults"],
     vendor: true,
     srcs: ["//external/virtio/mesa3d:mesa_meson{libvulkan_virtio.so}"],
     relative_install_path: "hw",
@@ -124,6 +118,7 @@ prebuilt_etc {
 apex {
     name: "com.qcom.prime.gralloc",
     package_name: "com.qcom.prime.gralloc",
+    defaults: ["//external/virtio/minigbm:qcvirtio_graphics_enabled_defaults"],
     manifest: "apex_manifest.json",
     key: "com.google.cf.apex.key",
     certificate: ":com.google.cf.apex.certificate",
