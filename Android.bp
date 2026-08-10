@@ -1,0 +1,442 @@
+// Mesa 3-D graphics library
+//
+// Copyright (C) 2010-2011 Chia-I Wu <olvaffe@gmail.com>
+// Copyright (C) 2010-2011 LunarG Inc.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the "Software"),
+// to deal in the Software without restriction, including without limitation
+// the rights to use, copy, modify, merge, publish, distribute, sublicense,
+// and/or sell copies of the Software, and to permit persons to whom the
+// Software is furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+// DEALINGS IN THE SOFTWARE.
+
+// *** THIS PACKAGE HAS SPECIAL LICENSING CONDITIONS.  PLEASE
+//     CONSULT THE OWNERS AND opensource-licensing@google.com BEFORE
+//     DEPENDING ON IT IN YOUR PROJECT. ***
+
+soong_namespace {}
+
+package {
+    default_applicable_licenses: ["external_mesa3d_license"],
+}
+
+// Added automatically by a large-scale-change that took the approach of
+// 'apply every license found to every target'. While this makes sure we respect
+// every license restriction, it may not be entirely correct.
+//
+// e.g. GPL in an MIT project might only apply to the contrib/ directory.
+//
+// Please consider splitting the single license below into multiple licenses,
+// taking care not to lose any license_kind information, and overriding the
+// default license using the 'licenses: [...]' property on targets as needed.
+//
+// For unused files, consider creating a 'fileGroup' with "//visibility:private"
+// to attach the license to, and including a comment whether the files may be
+// used in the current project.
+// See: http://go/android-license-faq
+license {
+    name: "external_mesa3d_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-Apache-2.0",
+        "SPDX-license-identifier-BSD",
+        "SPDX-license-identifier-BSL-1.0",
+        "SPDX-license-identifier-GPL",
+        "SPDX-license-identifier-GPL-2.0",
+        "SPDX-license-identifier-ISC",
+        "SPDX-license-identifier-MIT",
+        "SPDX-license-identifier-Unlicense",
+        "legacy_by_exception_only", // by exception only
+        "legacy_notice",
+        "legacy_unencumbered",
+    ],
+    license_text: [
+        "licenses/Apache-2.0",
+        "licenses/BSL-1.0",
+        "licenses/GPL-1.0-or-later",
+        "licenses/GPL-2.0-only",
+        "licenses/MIT",
+        "licenses/SGI-B-2.0",
+    ],
+}
+
+soong_config_module_type {
+    name: "qcvirtio_graphics_cc_genrule",
+    module_type: "cc_genrule",
+    config_namespace: "qcvirtio_graphics",
+    bool_variables: ["enabled"],
+    properties: ["enabled"],
+}
+
+soong_config_module_type {
+    name: "qcvirtio_graphics_cc_prebuilt_library_shared",
+    module_type: "cc_prebuilt_library_shared",
+    config_namespace: "qcvirtio_graphics",
+    bool_variables: ["enabled"],
+    properties: ["enabled"],
+}
+
+cc_defaults {
+    name: "mesa_version_defaults",
+    cflags: ["-DPACKAGE_VERSION=\"24.2\""],
+}
+
+python_binary_host {
+    name: "git_sha1_gen",
+    main: "bin/git_sha1_gen.py",
+    srcs: [
+        "bin/git_sha1_gen.py",
+    ],
+}
+
+genrule {
+    name: "git_sha1_header",
+    out: ["git_sha1.h"],
+    tools: ["git_sha1_gen"],
+    cmd: "MESA_GIT_SHA1_OVERRIDE=(git-l33t9876) python3 $(location git_sha1_gen) " +
+        "--output $(location git_sha1.h)",
+}
+
+cc_defaults {
+    name: "mesa_flagged_defaults",
+    cflags: select(soong_config_variable("gfxstream", "mesa3d_platforms"), {
+        // Android surfaceless build
+        "none": [
+            "-UANDROID",
+            "-U__ANDROID__",
+            "-DLINUX_GUEST_BUILD",
+        ],
+        // The default when variable is not set is Android
+        default: [
+            "-DVK_USE_PLATFORM_ANDROID_KHR",
+        ],
+    }),
+}
+
+cc_library_headers {
+    name: "mesa_common_headers",
+    defaults: ["mesa_flagged_defaults"],
+    vendor_available: true,
+    host_supported: true,
+    export_include_dirs: [
+        "src",
+        "include",
+    ],
+    visibility: [":__subpackages__"],
+}
+
+// This needs to be kept in sync with Android.common.mk
+cc_defaults {
+    name: "mesa_common_defaults",
+    defaults: [
+        "mesa_version_defaults",
+        "mesa_flagged_defaults",
+    ],
+    // uncomment to keep the debug symbols
+    // strip: { none: true, },
+    header_libs: ["mesa_common_headers"],
+    cflags: [
+        "-Wno-error",
+        "-Werror=incompatible-pointer-types",
+        "-Wno-unused-parameter",
+        "-Wno-pointer-arith",
+        "-Wno-missing-field-initializers",
+        "-Wno-initializer-overrides",
+        "-Wno-mismatched-tags",
+        // PACKAGE_VERSION is in mesa_version_defaults
+        "-DPACKAGE_BUGREPORT=\"https://bugs.freedesktop.org/enter_bug.cgi?product=Mesa\"",
+        // XXX: The following __STDC_*_MACROS defines should not be needed.
+        // It's likely due to a bug elsewhere, but let's temporarily add them
+        // here to fix the radeonsi build.
+        "-DENABLE_SHADER_CACHE",
+        "-D__STDC_CONSTANT_MACROS",
+        "-D__STDC_LIMIT_MACROS",
+        "-DHAVE___BUILTIN_EXPECT",
+        "-DHAVE___BUILTIN_FFS",
+        "-DHAVE___BUILTIN_FFSLL",
+        "-DHAVE_DLFCN_H",
+        "-DHAVE_FUNC_ATTRIBUTE_FLATTEN",
+        "-DHAVE_FUNC_ATTRIBUTE_UNUSED",
+        "-DHAVE_FUNC_ATTRIBUTE_FORMAT",
+        "-DHAVE_FUNC_ATTRIBUTE_PACKED",
+        "-DHAVE_FUNC_ATTRIBUTE_ALIAS",
+        "-DHAVE_FUNC_ATTRIBUTE_NORETURN",
+        "-DHAVE_FUNC_ATTRIBUTE_RETURNS_NONNULL",
+        "-DHAVE_FUNC_ATTRIBUTE_WARN_UNUSED_RESULT",
+        "-DHAVE___BUILTIN_CTZ",
+        "-DHAVE___BUILTIN_POPCOUNT",
+        "-DHAVE___BUILTIN_POPCOUNTLL",
+        "-DHAVE___BUILTIN_CLZ",
+        "-DHAVE___BUILTIN_CLZLL",
+        "-DHAVE___BUILTIN_UNREACHABLE",
+        "-DHAVE_PERFETTO",
+        "-DANDROID_LIBPERFETTO",
+        "-DHAVE_PTHREAD=1",
+        "-DHAVE_DLADDR",
+        "-DHAVE_DL_ITERATE_PHDR",
+        "-DHAVE_LINUX_FUTEX_H",
+        "-DHAVE_ENDIAN_H",
+        "-DMAJOR_IN_SYSMACROS",
+        "-DMESA_DEBUG=0",
+        "-fvisibility=hidden",
+        "-fno-math-errno",
+        "-fno-trapping-math",
+        "-Werror",
+        "-Wno-#warnings",
+        "-Wno-asm-operand-widths",
+        "-Wno-cast-calling-convention",
+        "-Wno-constant-logical-operand",
+        "-Wno-enum-conversion",
+        "-Wno-format",
+        "-Wno-gnu-variable-sized-type-not-at-end",
+        "-Wno-implicit-fallthrough",
+        "-Wno-implicit-int",
+        "-Wno-incompatible-pointer-types",
+        "-Wno-missing-braces",
+        "-Wno-overloaded-virtual",
+        "-Wno-self-assign",
+        "-Wno-shift-negative-value",
+        "-Wno-sign-compare",
+        "-Wno-sometimes-uninitialized",
+        "-Wno-switch",
+        "-Wno-typedef-redefinition",
+        "-Wno-uninitialized",
+        "-Wno-implicit-const-int-float-conversion",
+        "-Wno-sync-alignment",
+        "-Wno-implicit-function-declaration",
+        "-Wno-constant-conversion",
+        "-DHAVE_TIMESPEC_GET",
+        "-DHAVE_STRUCT_TIMESPEC",
+        "-DMESA_LLVM_VERSION_STRING=\"16.0.0\"",
+        "-DDRAW_LLVM_AVAILABLE=1",
+        "-DHAVE_LIBDRM",
+        "-DHAVE_COMPRESSION",
+        "-DHAVE_ZSTD",
+    ],
+    c_std: "c11",
+    shared_libs: ["libdrm"],
+    cppflags: [
+        "-D__STDC_CONSTANT_MACROS",
+        "-D__STDC_FORMAT_MACROS",
+        "-D__STDC_LIMIT_MACROS",
+        "-Wno-error=non-virtual-dtor",
+        "-Wno-non-virtual-dtor",
+    ],
+    arch: {
+        arm: {
+            cflags: ["-DNO_FORMAT_ASM"],
+        },
+        arm64: {
+            cflags: ["-DNO_FORMAT_ASM"],
+        },
+    },
+    multilib: {
+        lib32: {
+            cflags: ["-DDEFAULT_DRIVER_DIR=\"/vendor/lib/dri\""],
+        },
+        lib64: {
+            cflags: ["-DDEFAULT_DRIVER_DIR=\"/vendor/lib64/dri\""],
+        },
+    },
+    product_variables: {
+        platform_sdk_version: {
+            cflags: ["-DANDROID_API_LEVEL=%d"],
+        },
+    },
+    target: {
+        host: {
+            cflags: [
+                "-D_GNU_SOURCE",
+                "-DHAVE_SECURE_GETENV",
+            ],
+        },
+        android: {
+            cflags: [
+                "-DHAVE_REALLOCARRAY",
+            ],
+        },
+        linux_musl: {
+            cflags: [
+                "-DHAVE_REALLOCARRAY",
+            ],
+        },
+    },
+}
+// The modules below build Mesa3D via Meson from Android.bp in "mesa_meson".
+//
+// "mesa_meson" is the core that builds everything. The module that has to be
+// added to PRODUCT_PACKAGES is "libEGL_mesa". It will automatically install the other two
+// and the dependencies. See https://source.android.com/docs/core/graphics/implement-opengl-es.
+//
+// All the library modules refer to their corresponding "mesa_meson" output files. This approach
+// was chosen because translating meson.build to Android.bp is not maintainable, even if scripted.
+//
+// Note that a single-library variant "libGLES_mesa" is not provided. If absolutely necessary,
+// copy the libEGL_mesa module, remove "required", and change "name" property to "libGLES_mesa".
+// Use check_elf_files property to suppress SONAME mismatch error.
+
+// Dependency on all files to rebuild mesa_meson automatically during development activities.
+filegroup {
+    name: "mesa_srcs",
+    srcs: ["**/*"],
+}
+
+qcvirtio_graphics_cc_genrule {
+    name: "mesa_meson",
+    vendor: true,
+    tool_files: ["mesa_meson_driver.py"],
+    srcs: [
+        ":libdrm",
+        ":libz",
+        ":mesa_srcs",
+    ],
+    out: [
+        "libEGL_mesa.so",
+        "libGLESv1_CM_mesa.so",
+        "libGLESv2_mesa.so",
+        "libgallium_dri.so",
+        "libvulkan_virtio.so",
+    ],
+    cmd: "python3 $(location) --arch $$CC_ARCH --gen-dir $(genDir) " +
+        "--libdrm $(location :libdrm) --libz $(location :libz)",
+
+    soong_config_variables: {
+        enabled: {
+            enabled: true,
+            conditions_default: {
+                enabled: false,
+            },
+        },
+    },
+}
+
+qcvirtio_graphics_cc_prebuilt_library_shared {
+    name: "libEGL_mesa",
+    soong_config_variables: {
+        enabled: {
+            enabled: true,
+            conditions_default: {
+                enabled: false,
+            },
+        },
+    },
+    vendor: true,
+    srcs: [":mesa_meson{libEGL_mesa.so}"],
+    relative_install_path: "egl",
+    shared_libs: [
+        "libcutils",
+        "libhardware",
+        "liblog",
+        "libnativewindow",
+        "libsync",
+        "libgallium_dri",
+        "libdrm",
+        "libm",
+        "libdl",
+        "libc",
+    ],
+    required: [
+        "libGLESv1_CM_mesa",
+        "libGLESv2_mesa",
+        "vulkan.virtio",
+    ],
+}
+
+qcvirtio_graphics_cc_prebuilt_library_shared {
+    name: "libGLESv1_CM_mesa",
+    soong_config_variables: {
+        enabled: {
+            enabled: true,
+            conditions_default: {
+                enabled: false,
+            },
+        },
+    },
+    vendor: true,
+    srcs: [":mesa_meson{libGLESv1_CM_mesa.so}"],
+    relative_install_path: "egl",
+    shared_libs: [
+        "libc",
+        "libgallium_dri",
+    ],
+}
+
+qcvirtio_graphics_cc_prebuilt_library_shared {
+    name: "libGLESv2_mesa",
+    soong_config_variables: {
+        enabled: {
+            enabled: true,
+            conditions_default: {
+                enabled: false,
+            },
+        },
+    },
+    vendor: true,
+    srcs: [":mesa_meson{libGLESv2_mesa.so}"],
+    relative_install_path: "egl",
+    shared_libs: [
+        "libc",
+        "libgallium_dri",
+    ],
+}
+
+qcvirtio_graphics_cc_prebuilt_library_shared {
+    name: "libgallium_dri",
+    soong_config_variables: {
+        enabled: {
+            enabled: true,
+            conditions_default: {
+                enabled: false,
+            },
+        },
+    },
+    vendor: true,
+    srcs: [":mesa_meson{libgallium_dri.so}"],
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libsync",
+        "libdrm",
+        "libz",
+        "libm",
+        "libdl",
+        "libc",
+    ],
+}
+
+qcvirtio_graphics_cc_prebuilt_library_shared {
+    name: "vulkan.virtio",
+    soong_config_variables: {
+        enabled: {
+            enabled: true,
+            conditions_default: {
+                enabled: false,
+            },
+        },
+    },
+    vendor: true,
+    srcs: [":mesa_meson{libvulkan_virtio.so}"],
+    relative_install_path: "hw",
+    shared_libs: [
+        "libcutils",
+        "libhardware",
+        "liblog",
+        "libnativewindow",
+        "libsync",
+        "libdrm",
+        "libm",
+        "libdl",
+        "libc",
+    ],
+}

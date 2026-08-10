@@ -42,6 +42,9 @@ enum VirtGpuCapset {
     kCapsetVirgl = 1,
     kCapsetVirgl2 = 2,
     kCapsetGfxStreamVulkan = 3,
+    // Compatibility alias for older gfxstream call sites that still refer to
+    // the legacy Magma capset name.
+    kCapsetGfxStreamMagma = kCapsetGfxStreamVulkan,
     kCapsetVenus = 4,
     kCapsetCrossDomain = 5,
     kCapsetDrm = 6,

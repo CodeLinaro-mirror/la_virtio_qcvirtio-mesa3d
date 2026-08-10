@@ -355,7 +355,7 @@ os_set_option(const char *name, const char *value, bool override)
 bool
 os_get_total_physical_memory(uint64_t *size)
 {
-#if HAVE_SYSCONF
+#if HAVE_SYSCONF || DETECT_OS_ANDROID
    const long phys_pages = sysconf(_SC_PHYS_PAGES);
    const long page_size = sysconf(_SC_PAGESIZE);
 
@@ -483,7 +483,7 @@ os_get_available_system_memory(uint64_t *size)
 bool
 os_get_page_size(uint64_t *size)
 {
-#if HAVE_SYSCONF
+#if HAVE_SYSCONF || DETECT_OS_ANDROID
    const long page_size = sysconf(_SC_PAGESIZE);
 
    if (page_size <= 0)

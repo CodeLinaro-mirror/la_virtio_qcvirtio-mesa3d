@@ -538,17 +538,19 @@ def main():
                         help='Vulkan API XML files',
                         action='append',
                         dest='xml_files')
-    parser.add_argument('--out-c',
-                        help='Output C file',
-                        required=True)
-    parser.add_argument('--out-h',
-                        help='Output H file',
-                        required=True)
-    parser.add_argument('--out-d',
-                        help='Output defines H file',
-                        required=True)
+    parser.add_argument('--out-c', help='Output C file')
+    parser.add_argument('--out-h', help='Output H file')
+    parser.add_argument('--out-d', help='Output defines H file')
+    parser.add_argument('--outdir',
+                        help='Legacy Android.bp compatibility: output directory')
 
     args = parser.parse_args()
+    if args.outdir:
+        args.out_c = args.out_c or os.path.join(args.outdir, 'vk_enum_to_str.c')
+        args.out_h = args.out_h or os.path.join(args.outdir, 'vk_enum_to_str.h')
+        args.out_d = args.out_d or os.path.join(args.outdir, 'vk_enum_defines.h')
+    if not args.out_c or not args.out_h or not args.out_d:
+        parser.error('the following arguments are required: --out-c, --out-h, --out-d')
 
     enum_factory = NamedFactory(VkEnum)
     ext_factory = NamedFactory(VkExtension)
