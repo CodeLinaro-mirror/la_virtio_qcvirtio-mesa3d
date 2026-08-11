@@ -1,0 +1,148 @@
+soong_namespace {}
+
+package {
+    default_applicable_licenses: ["external_mesa3d_license_apex"],
+}
+
+license {
+    name: "external_mesa3d_license_apex",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "//external/virtio/mesa3d/licenses/MIT",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "qcvirtio_libEGL_mesa",
+    stem: "libEGL_mesa",
+    vendor: true,
+    srcs: ["//external/virtio/mesa3d:mesa_meson{libEGL_mesa.so}"],
+    relative_install_path: "egl",
+    shared_libs: [
+        "libcutils",
+        "libhardware",
+        "liblog",
+        "libnativewindow",
+        "libsync",
+        "qcvirtio_libgallium_dri",
+        "libdrm",
+        "libm",
+        "libdl",
+        "libc",
+    ],
+    required: [
+        "qcvirtio_libgallium_dri",
+        "qcvirtio_libGLESv1_CM_mesa",
+        "qcvirtio_libGLESv2_mesa",
+        "qcvirtio_vulkan_virtio",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "qcvirtio_libGLESv1_CM_mesa",
+    stem: "libGLESv1_CM_mesa",
+    vendor: true,
+    srcs: ["//external/virtio/mesa3d:mesa_meson{libGLESv1_CM_mesa.so}"],
+    relative_install_path: "egl",
+    shared_libs: [
+        "libc",
+        "qcvirtio_libgallium_dri",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "qcvirtio_libGLESv2_mesa",
+    stem: "libGLESv2_mesa",
+    vendor: true,
+    srcs: ["//external/virtio/mesa3d:mesa_meson{libGLESv2_mesa.so}"],
+    relative_install_path: "egl",
+    shared_libs: [
+        "libc",
+        "qcvirtio_libgallium_dri",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "qcvirtio_libgallium_dri",
+    stem: "libgallium_dri",
+    vendor: true,
+    srcs: ["//external/virtio/mesa3d:mesa_meson{libgallium_dri.so}"],
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libsync",
+        "libdrm",
+        "libz",
+        "libm",
+        "libdl",
+        "libc",
+    ],
+}
+
+cc_prebuilt_library_shared {
+    name: "qcvirtio_vulkan_virtio",
+    stem: "vulkan.virtio",
+    vendor: true,
+    srcs: ["//external/virtio/mesa3d:mesa_meson{libvulkan_virtio.so}"],
+    relative_install_path: "hw",
+    shared_libs: [
+        "libcutils",
+        "libhardware",
+        "liblog",
+        "libnativewindow",
+        "libsync",
+        "libdrm",
+        "libm",
+        "libdl",
+        "libc",
+    ],
+}
+
+
+linker_config {
+    name: "com.qcom.prime.gralloc-linker-config",
+    src: "apex_linkerconfig.json",
+    installable: false,
+}
+
+genrule {
+    name: "gen-com.qcom.prime.gralloc.rc",
+    srcs: ["//external/virtio/minigbm/cros_gralloc/aidl:allocator.minigbm.rc"],
+    out: ["com.qcom.prime.gralloc.rc"],
+    cmd: "sed -E 's%/vendor/bin/%/apex/com.qcom.prime.gralloc/bin/%' $(in) > $(out)",
+}
+
+prebuilt_etc {
+    name: "com.qcom.prime.gralloc.rc",
+    src: ":gen-com.qcom.prime.gralloc.rc",
+    installable: false,
+}
+
+apex {
+    name: "com.qcom.prime.gralloc",
+    package_name: "com.qcom.prime.gralloc",
+    manifest: "apex_manifest.json",
+    key: "com.google.cf.apex.key",
+    certificate: ":com.google.cf.apex.certificate",
+    file_contexts: "apex_file_contexts",
+    updatable: false,
+    vendor: true,
+    compile_multilib: "both",
+
+    binaries: ["//external/virtio/minigbm/cros_gralloc/aidl:android.hardware.graphics.allocator-service.minigbm"],
+    native_shared_libs: ["//external/virtio/minigbm/cros_gralloc/mapper_stablec:mapper.minigbm"],
+    prebuilts: [
+        "//external/virtio/minigbm/cros_gralloc/aidl:allocator.minigbm.xml",
+        "com.qcom.prime.gralloc.rc",
+        "com.qcom.prime.gralloc-linker-config",
+        "//external/virtio/minigbm/cros_gralloc/mapper_stablec:mapper.minigbm.xml",
+    ],
+    overrides: [
+        "android.hardware.graphics.allocator-service.minigbm",
+        "com.google.cf.gralloc",
+        "mapper.minigbm",
+    ],
+}
