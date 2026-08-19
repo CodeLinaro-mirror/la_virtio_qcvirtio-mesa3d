@@ -71,6 +71,17 @@ license {
     ],
 }
 
+license {
+    name: "external_mesa3d_license_apex",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "licenses/MIT",
+    ],
+}
+
 soong_config_module_type {
     name: "qcvirtio_graphics_cc_genrule",
     module_type: "cc_genrule",
@@ -142,6 +153,7 @@ cc_defaults {
     defaults: [
         "mesa_version_defaults",
         "mesa_flagged_defaults",
+        "//external/virtio/minigbm:qcvirtio_graphics_enabled_defaults",
     ],
     // uncomment to keep the debug symbols
     // strip: { none: true, },

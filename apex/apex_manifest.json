@@ -1,0 +1,5 @@
+{
+    "name": "com.qcom.prime.gralloc",
+    "version": 1,
+    "vendorBootstrap": true
+}
