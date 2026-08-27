@@ -108,6 +108,27 @@ cc_prebuilt_library_shared {
 }
 
 cc_prebuilt_library_shared {
+    name: "qcvirtio_virtio_gpu_dri",
+    stem: "virtio_gpu_dri",
+    defaults: ["//external/virtio/minigbm:qcvirtio_graphics_enabled_defaults"],
+    vendor: true,
+    apex_available: ["//external/virtio/mesa3d/apex:com.qcom.prime.gralloc"],
+    srcs: ["//external/virtio/mesa3d:mesa_meson{libgallium_dri.so}"],
+    relative_install_path: "gallium/targets/dri",
+    check_elf_files: false,
+    shared_libs: [
+        "libcutils",
+        "liblog",
+        "libsync",
+        "libdrm",
+        "libz",
+        "libm",
+        "libdl",
+        "libc",
+    ],
+}
+
+cc_prebuilt_library_shared {
     name: "qcvirtio_vulkan_virtio",
     stem: "vulkan.virtio",
     defaults: ["//external/virtio/minigbm:qcvirtio_graphics_enabled_defaults"],
@@ -167,6 +188,7 @@ apex {
         "qcvirtio_libEGL_mesa",
         "qcvirtio_libGLESv1_CM_mesa",
         "qcvirtio_libGLESv2_mesa",
+        "qcvirtio_virtio_gpu_dri",
         "qcvirtio_vulkan_virtio",
     ],
     prebuilts: [

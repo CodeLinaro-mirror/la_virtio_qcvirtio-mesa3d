@@ -27,6 +27,7 @@
 /lib/egl/libGLES_mesa\.so                                         u:object_r:same_process_hal_file:s0
 /lib/egl/libGLESv1_CM_mesa\.so                                    u:object_r:same_process_hal_file:s0
 /lib/egl/libGLESv2_mesa\.so                                       u:object_r:same_process_hal_file:s0
+/lib/gallium/targets/dri/virtio_gpu_dri\.so                       u:object_r:same_process_hal_file:s0
 /lib/hw/vulkan\.virtio\.so                                        u:object_r:same_process_hal_file:s0
 /lib/libgallium_dri\.so                                           u:object_r:same_process_hal_file:s0
 /lib/libutils\.so                                                 u:object_r:same_process_hal_file:s0
@@ -56,6 +57,7 @@
 /lib64/egl/libGLES_mesa\.so                                       u:object_r:same_process_hal_file:s0
 /lib64/egl/libGLESv1_CM_mesa\.so                                  u:object_r:same_process_hal_file:s0
 /lib64/egl/libGLESv2_mesa\.so                                     u:object_r:same_process_hal_file:s0
+/lib64/gallium/targets/dri/virtio_gpu_dri\.so                     u:object_r:same_process_hal_file:s0
 /lib64/hw/vulkan\.virtio\.so                                      u:object_r:same_process_hal_file:s0
 /lib64/libgallium_dri\.so                                         u:object_r:same_process_hal_file:s0
 /lib64/libutils\.so                                               u:object_r:same_process_hal_file:s0
