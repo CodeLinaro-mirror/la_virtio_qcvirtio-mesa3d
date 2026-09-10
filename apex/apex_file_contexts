@@ -10,6 +10,7 @@
 /lib/android\.hardware\.graphics\.common@1\.2\.so                 u:object_r:same_process_hal_file:s0
 /lib/android\.hardware\.graphics\.mapper@4\.0\.so                 u:object_r:same_process_hal_file:s0
 /lib/hw/mapper\.minigbm\.so                                      u:object_r:same_process_hal_file:s0
+/lib/hw/gralloc\.minigbm\.so                                     u:object_r:same_process_hal_file:s0
 /lib/libbase\.so                                                  u:object_r:same_process_hal_file:s0
 /lib/libc\+\+\.so                                                 u:object_r:same_process_hal_file:s0
 /lib/libcutils\.so                                                u:object_r:same_process_hal_file:s0
@@ -39,6 +40,7 @@
 /lib64/android\.hardware\.graphics\.common@1\.2\.so               u:object_r:same_process_hal_file:s0
 /lib64/android\.hardware\.graphics\.mapper@4\.0\.so               u:object_r:same_process_hal_file:s0
 /lib64/hw/mapper\.minigbm\.so                                    u:object_r:same_process_hal_file:s0
+/lib64/hw/gralloc\.minigbm\.so                                   u:object_r:same_process_hal_file:s0
 /lib64/libbase\.so                                                u:object_r:same_process_hal_file:s0
 /lib64/libc\+\+\.so                                               u:object_r:same_process_hal_file:s0
 /lib64/libcutils\.so                                              u:object_r:same_process_hal_file:s0

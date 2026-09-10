@@ -183,6 +183,7 @@ apex {
 
     binaries: ["//external/virtio/minigbm/cros_gralloc/aidl:android.hardware.graphics.allocator-service.minigbm"],
     native_shared_libs: [
+        "//external/virtio/minigbm:gralloc.minigbm",
         "//external/virtio/minigbm/cros_gralloc/mapper_stablec:mapper.minigbm",
         "qcvirtio_libGLES_mesa",
         "qcvirtio_libEGL_mesa",
