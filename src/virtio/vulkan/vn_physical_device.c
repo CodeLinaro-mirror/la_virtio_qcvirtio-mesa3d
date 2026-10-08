@@ -1442,6 +1442,17 @@ vn_physical_device_init_supported_extensions(
    for (uint32_t i = 0; i < VK_DEVICE_EXTENSION_COUNT; i++) {
       const VkExtensionProperties *props = &vk_device_extensions[i];
 
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+      /*
+       * Android's Vulkan loader adds RGBA10X6 to the surface-format list
+       * when this extension is exposed. Venus cannot allocate or import
+       * these images through the Android AHardwareBuffer path yet.
+       */
+      if (!strcmp(props->extensionName,
+                  VK_EXT_RGBA10X6_FORMATS_EXTENSION_NAME))
+         continue;
+#endif
+
 #ifdef ANDROID_STRICT
       if (!vk_android_allowed_device_extensions.extensions[i])
          continue;
