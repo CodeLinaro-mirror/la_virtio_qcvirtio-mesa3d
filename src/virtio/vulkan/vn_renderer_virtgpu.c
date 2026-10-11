@@ -27,9 +27,9 @@
 
 #include "vn_renderer_internal.h"
 
-#ifndef VIRTGPU_PARAM_GUEST_VRAM
+#ifndef VIRTGPU_PARAM_GUEST_MEM_IMPORT
 /* All guest allocations happen via virtgpu dedicated heap. */
-#define VIRTGPU_PARAM_GUEST_VRAM 9
+#define VIRTGPU_PARAM_GUEST_MEM_IMPORT 11
 #endif
 
 #ifndef VIRTGPU_BLOB_MEM_GUEST_VRAM
@@ -1503,7 +1503,7 @@ virtgpu_init_renderer_info(struct virtgpu *gpu)
       info->has_guest_vram = true;
 
    /* Use guest blob allocations from dedicated heap (Host visible memory) */
-   if (gpu->bo_blob_mem == VIRTGPU_BLOB_MEM_HOST3D && capset->use_guest_vram)
+   if (gpu->bo_blob_mem == VIRTGPU_BLOB_MEM_GUEST && capset->use_guest_vram)
       info->has_guest_vram = true;
 }
 
@@ -1549,7 +1549,7 @@ virtgpu_init_shmem_blob_mem(ASSERTED struct virtgpu *gpu)
     * supports_blob_id_0 has been enforced by mandated render server config.
     */
    assert(gpu->capset.data.supports_blob_id_0);
-   gpu->shmem_blob_mem = VIRTGPU_BLOB_MEM_HOST3D;
+   gpu->shmem_blob_mem = VIRTGPU_BLOB_MEM_GUEST;
 }
 
 static VkResult
@@ -1620,18 +1620,19 @@ virtgpu_init_params(struct virtgpu *gpu)
    val = virtgpu_ioctl_getparam(gpu, VIRTGPU_PARAM_HOST_VISIBLE);
    if (val) {
       gpu->bo_blob_mem = VIRTGPU_BLOB_MEM_HOST3D;
-   } else {
-      val = virtgpu_ioctl_getparam(gpu, VIRTGPU_PARAM_GUEST_VRAM);
-      if (val) {
-         gpu->bo_blob_mem = VIRTGPU_BLOB_MEM_GUEST_VRAM;
-      }
    }
 
    if (!val) {
-      vn_log(gpu->instance,
-             "one of required kernel params (%d or %d) is missing",
-             (int)VIRTGPU_PARAM_HOST_VISIBLE, (int)VIRTGPU_PARAM_GUEST_VRAM);
-      return VK_ERROR_INITIALIZATION_FAILED;
+      val = virtgpu_ioctl_getparam(gpu, VIRTGPU_PARAM_GUEST_MEM_IMPORT);
+      if (val)
+         gpu->bo_blob_mem = VIRTGPU_BLOB_MEM_GUEST;
+
+      if (!val) {
+         vn_log(gpu->instance,
+                "one of required kernel params (%d or %d) is missing",
+                (int)VIRTGPU_PARAM_HOST_VISIBLE, (int)VIRTGPU_PARAM_GUEST_MEM_IMPORT);
+         return VK_ERROR_INITIALIZATION_FAILED;
+      }
    }
 
    /* Cross-device feature is optional.  It enables sharing dma-bufs
