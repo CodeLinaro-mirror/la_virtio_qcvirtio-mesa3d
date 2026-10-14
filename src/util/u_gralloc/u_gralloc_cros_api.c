@@ -8,6 +8,8 @@
 #include <assert.h>
 #include <dlfcn.h>
 #include <errno.h>
+#include <limits.h>
+#include <stdio.h>
 #include <string.h>
 #include <hardware/gralloc.h>
 
@@ -213,14 +215,68 @@ destroy(struct u_gralloc *gralloc)
    return 0;
 }
 
+static hw_module_t *
+load_sibling_gralloc_module(void)
+{
+   static void *handle;
+   Dl_info info;
+   char path[PATH_MAX];
+   const char *basename;
+
+   if (!dladdr(load_sibling_gralloc_module, &info) || !info.dli_fname)
+      return NULL;
+
+   basename = strrchr(info.dli_fname, '/');
+   if (!basename || (size_t)(basename - info.dli_fname) +
+                    sizeof("/../hw/gralloc.minigbm.so") > sizeof(path))
+      return NULL;
+
+   /* Try the module in the DSO directory, its hw subdirectory, then its
+    * parent library directory's hw subdirectory. Mesa may be loaded from
+    * lib[64]/egl. */
+   snprintf(path, sizeof(path), "%.*s/gralloc.minigbm.so",
+            (int)(basename - info.dli_fname), info.dli_fname);
+
+   /* The legacy minigbm wrapper is installed beside Mesa. Loading it by its
+    * sibling path avoids the process-global libhardware instance, which may
+    * search a different partition. */
+   handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+   if (!handle) {
+      snprintf(path, sizeof(path), "%.*s/hw/gralloc.minigbm.so",
+               (int)(basename - info.dli_fname), info.dli_fname);
+      handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+   }
+   if (!handle) {
+      snprintf(path, sizeof(path), "%.*s/../hw/gralloc.minigbm.so",
+               (int)(basename - info.dli_fname), info.dli_fname);
+      handle = dlopen(path, RTLD_NOW | RTLD_LOCAL);
+   }
+   if (!handle) {
+      mesa_logw("Failed to load sibling gralloc module: %s", dlerror());
+      return NULL;
+   }
+
+   hw_module_t *module = (hw_module_t *)dlsym(handle, HAL_MODULE_INFO_SYM_AS_STR);
+   if (!module) {
+      mesa_logw("Sibling gralloc module has no HMI symbol: %s", dlerror());
+      dlclose(handle);
+      return NULL;
+   }
+
+   module->dso = handle;
+   return module;
+}
+
 struct u_gralloc *
 u_gralloc_cros_api_create()
 {
    struct cros_gralloc *gr = CALLOC_STRUCT(cros_gralloc);
    int err = 0;
 
-   err = hw_get_module(GRALLOC_HARDWARE_MODULE_ID,
-                       (const hw_module_t **)&gr->gralloc_module);
+   gr->gralloc_module = (gralloc_module_t *)load_sibling_gralloc_module();
+   if (!gr->gralloc_module)
+      err = hw_get_module(GRALLOC_HARDWARE_MODULE_ID,
+                          (const hw_module_t **)&gr->gralloc_module);
 
    if (err)
       goto fail;
