@@ -1,5 +1,5 @@
 {
-    "name": "com.qcom.prime.gralloc",
+    "name": "com.qcom.prime.graphics",
     "version": 1,
     "vendorBootstrap": true
 }
